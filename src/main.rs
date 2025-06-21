@@ -194,7 +194,7 @@ fn ui(f: &mut Frame, app: &App) {
             Constraint::Percentage(60), // Center content
             Constraint::Percentage(20), // Right padding
         ])
-        .split(f.size());
+        .split(f.area());
 
     // Create vertical centering with padding
     let vertical_chunks = Layout::default()
