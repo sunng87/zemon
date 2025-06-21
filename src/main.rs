@@ -1,3 +1,4 @@
+use chrono::Local;
 use clap::Parser;
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
@@ -7,7 +8,7 @@ use crossterm::{
 use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Direction, Layout},
-    style::{Color, Style},
+    style::{Color, Style, Stylize},
     widgets::{Block, Borders, Gauge, Paragraph},
     Frame, Terminal,
 };
@@ -199,6 +200,7 @@ fn ui(f: &mut Frame, app: &App) {
             Constraint::Length(3), // Memory
             Constraint::Length(3), // Swap
             Constraint::Length(3), // Network
+            Constraint::Length(1), // Time
         ])
         .split(vertical_chunks[1]);
 
@@ -236,4 +238,11 @@ fn ui(f: &mut Frame, app: &App) {
     .centered();
 
     f.render_widget(network_gauge, widget_chunks[3]);
+
+    // Current Time
+    let current_time = Local::now().format("%m-%d %H:%M").to_string();
+    let time_widget = Paragraph::new(current_time)
+        .centered()
+        .style(Style::default().bold());
+    f.render_widget(time_widget, widget_chunks[4]);
 }
