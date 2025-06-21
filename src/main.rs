@@ -40,45 +40,18 @@ fn main() {
 
         // Display CPU information
         mvprintw(4, 0, "CPU Usage:");
-        let cpus = system.cpus();
-        for (i, cpu) in cpus.iter().enumerate() {
-            mvprintw(
-                5 + i as i32,
-                2,
-                &format!("CPU {}: {:.1}%", i, cpu.cpu_usage()),
-            );
-        }
+        let cpu_usage = system.global_cpu_info().cpu_usage();
+        mvprintw(5, 2, &format!("Overall: {:.1}%", cpu_usage));
 
         // Display memory information
-        let memory_row = 6 + cpus.len() as i32;
+        let memory_row = 7;
         mvprintw(memory_row, 0, "Memory Usage:");
-        mvprintw(
-            memory_row + 1,
-            2,
-            &format!(
-                "Total: {:.2} GB",
-                system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0
-            ),
-        );
-        mvprintw(
-            memory_row + 2,
-            2,
-            &format!(
-                "Used:  {:.2} GB",
-                system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0
-            ),
-        );
-        mvprintw(
-            memory_row + 3,
-            2,
-            &format!(
-                "Free:  {:.2} GB",
-                system.free_memory() as f64 / 1024.0 / 1024.0 / 1024.0
-            ),
-        );
-
+        let total_memory_gb = system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
+        let used_memory_gb = system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
         let memory_percent = (system.used_memory() as f64 / system.total_memory() as f64) * 100.0;
-        mvprintw(memory_row + 4, 2, &format!("Usage: {:.1}%", memory_percent));
+        
+        mvprintw(memory_row + 1, 2, &format!("Available: {:.2} GB", total_memory_gb));
+        mvprintw(memory_row + 2, 2, &format!("Used: {:.2} GB ({:.1}%)", used_memory_gb, memory_percent));
 
         // Refresh screen
         refresh();
