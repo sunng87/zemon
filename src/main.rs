@@ -33,6 +33,10 @@ struct App {
     memory_percent: f64,
     total_memory_gb: f64,
     used_memory_gb: f64,
+    network_upload_kbps: f64,
+    network_download_kbps: f64,
+    prev_network_received: u64,
+    prev_network_transmitted: u64,
     refresh_interval: Duration,
     last_update: Instant,
 }
@@ -47,12 +51,22 @@ impl App {
         let used_memory_gb = system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
         let memory_percent = (system.used_memory() as f64 / system.total_memory() as f64) * 100.0;
 
+        // Get initial network stats
+        let (total_received, total_transmitted) = system.networks().iter()
+            .fold((0, 0), |(rx, tx), (_, data)| {
+                (rx + data.total_received(), tx + data.total_transmitted())
+            });
+
         App {
             system,
             cpu_usage,
             memory_percent,
             total_memory_gb,
             used_memory_gb,
+            network_upload_kbps: 0.0,
+            network_download_kbps: 0.0,
+            prev_network_received: total_received,
+            prev_network_transmitted: total_transmitted,
             refresh_interval,
             last_update: Instant::now(),
         }
@@ -60,12 +74,29 @@ impl App {
 
     fn update(&mut self) {
         if self.last_update.elapsed() >= self.refresh_interval {
+            let elapsed_secs = self.last_update.elapsed().as_secs_f64();
+            
             self.system.refresh_all();
             self.cpu_usage = self.system.global_cpu_usage() as f64;
             self.total_memory_gb = self.system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
             self.used_memory_gb = self.system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
             self.memory_percent =
                 (self.system.used_memory() as f64 / self.system.total_memory() as f64) * 100.0;
+
+            // Calculate network speeds
+            let (total_received, total_transmitted) = self.system.networks().iter()
+                .fold((0, 0), |(rx, tx), (_, data)| {
+                    (rx + data.total_received(), tx + data.total_transmitted())
+                });
+
+            let bytes_received = total_received.saturating_sub(self.prev_network_received);
+            let bytes_transmitted = total_transmitted.saturating_sub(self.prev_network_transmitted);
+
+            self.network_download_kbps = (bytes_received as f64 / elapsed_secs) / 1024.0;
+            self.network_upload_kbps = (bytes_transmitted as f64 / elapsed_secs) / 1024.0;
+
+            self.prev_network_received = total_received;
+            self.prev_network_transmitted = total_transmitted;
             self.last_update = Instant::now();
         }
     }
@@ -134,9 +165,9 @@ fn ui(f: &mut Frame, app: &App) {
     let vertical_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(30), // Top padding
-            Constraint::Length(8),      // Content height (2 widgets + borders)
-            Constraint::Percentage(30), // Bottom padding
+            Constraint::Percentage(25), // Top padding
+            Constraint::Length(11),     // Content height (3 widgets + borders)
+            Constraint::Percentage(25), // Bottom padding
         ])
         .split(horizontal_chunks[1]);
 
@@ -147,6 +178,7 @@ fn ui(f: &mut Frame, app: &App) {
         .constraints([
             Constraint::Length(3), // CPU
             Constraint::Length(3), // Memory
+            Constraint::Length(3), // Network
         ])
         .split(vertical_chunks[1]);
 
