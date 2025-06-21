@@ -80,6 +80,17 @@ typically. Start it as a floating pane in Zellij:
 zellij run -f -c -- zemon
 ```
 
+Or bind it to a shortcut key in Zellij configuration:
+
+```kdl
+bind "Alt m" {
+  Run "zemon" {
+    floating true
+    close_on_exit true
+  };
+}
+```
+
 ## Development
 
 ### Using the development shell
