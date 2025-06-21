@@ -43,6 +43,15 @@ struct App {
     last_update: Instant,
 }
 
+fn get_gauge_color(percentage: f64) -> Color {
+    match percentage {
+        p if p < 25.0 => Color::Blue,
+        p if p < 50.0 => Color::Cyan,
+        p if p < 75.0 => Color::Yellow,
+        _ => Color::Red,
+    }
+}
+
 impl App {
     fn new(refresh_interval: Duration) -> App {
         let mut system = System::new_all();
@@ -196,7 +205,7 @@ fn ui(f: &mut Frame, app: &App) {
     // CPU Usage
     let cpu_gauge = Gauge::default()
         .block(Block::default().borders(Borders::ALL).title(" CPU "))
-        .gauge_style(Style::default().fg(Color::Cyan))
+        .gauge_style(Style::default().fg(get_gauge_color(app.cpu_usage)))
         .percent(app.cpu_usage as u16)
         .label(format!("{:.1}%", app.cpu_usage));
     f.render_widget(cpu_gauge, widget_chunks[0]);
@@ -204,7 +213,7 @@ fn ui(f: &mut Frame, app: &App) {
     // Memory Usage
     let memory_gauge = Gauge::default()
         .block(Block::default().borders(Borders::ALL).title(" Memory "))
-        .gauge_style(Style::default().fg(Color::Green))
+        .gauge_style(Style::default().fg(get_gauge_color(app.memory_percent)))
         .percent(app.memory_percent as u16)
         .label(format!("{:.1} GB", app.used_memory_gb));
     f.render_widget(memory_gauge, widget_chunks[1]);
@@ -212,7 +221,7 @@ fn ui(f: &mut Frame, app: &App) {
     // Swap Usage
     let swap_gauge = Gauge::default()
         .block(Block::default().borders(Borders::ALL).title(" Swap "))
-        .gauge_style(Style::default().fg(Color::Red))
+        .gauge_style(Style::default().fg(get_gauge_color(app.swap_percent)))
         .percent(app.swap_percent as u16)
         .label(format!("{:.1} GB", app.used_swap_gb));
 
