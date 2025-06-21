@@ -14,7 +14,7 @@
         pkgs = import nixpkgs {
           inherit system overlays;
         };
-        
+
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
           extensions = [ "rust-src" "rustfmt" "clippy" ];
         };
@@ -32,7 +32,7 @@
       {
         devShells.default = pkgs.mkShell {
           inherit buildInputs nativeBuildInputs;
-          
+
           shellHook = ''
             echo "Rust development environment loaded"
             echo "Rust version: $(rustc --version)"
@@ -43,9 +43,9 @@
         packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "zemon";
           version = "0.1.0";
-          
+
           src = ./.;
-          
+
           cargoLock = {
             lockFile = ./Cargo.lock;
           };
