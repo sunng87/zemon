@@ -10,12 +10,12 @@ A small TUI widget designed for display system information in zellij.
 
 #### Direct installation
 ```bash
-nix profile install github:your-username/zemon
+nix profile install github:sunng87/zemon
 ```
 
 #### Run without installing
 ```bash
-nix run github:your-username/zemon
+nix run github:sung87/zemon
 ```
 
 ### NixOS Configuration
@@ -26,11 +26,11 @@ Add to your `configuration.nix`:
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    zemon.url = "github:your-username/zemon";
+    zemon.url = "github:sunng87/zemon";
   };
 
   outputs = { self, nixpkgs, zemon, ... }: {
-    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.YOUR_USERNAME = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         {
@@ -53,11 +53,11 @@ Add to your `home.nix`:
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager.url = "github:nix-community/home-manager";
-    zemon.url = "github:your-username/zemon";
+    zemon.url = "github:sunng87/zemon";
   };
 
   outputs = { nixpkgs, home-manager, zemon, ... }: {
-    homeConfigurations.your-username = home-manager.lib.homeManagerConfiguration {
+    homeConfigurations.YOUR_USERNAME = home-manager.lib.homeManagerConfiguration {
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       modules = [
         {
