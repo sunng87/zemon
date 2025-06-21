@@ -6,18 +6,23 @@ use sysinfo::System;
 
 fn draw_progress_bar(row: i32, col: i32, width: i32, percentage: f64, label: &str) {
     let filled_width = ((percentage / 100.0) * width as f64) as i32;
-    
+
     mvprintw(row, col, &format!("{}: [", label)).unwrap();
-    
+
     for i in 0..width {
         if i < filled_width {
-            mvaddch(row, col + label.len() as i32 + 3 + i, '█' as u32).unwrap();
+            mvaddch(row, col + label.len() as i32 + 3 + i, '█' as u32);
         } else {
-            mvaddch(row, col + label.len() as i32 + 3 + i, '░' as u32).unwrap();
+            mvaddch(row, col + label.len() as i32 + 3 + i, '░' as u32);
         }
     }
-    
-    mvprintw(row, col + label.len() as i32 + 3 + width, &format!("] {:.1}%", percentage)).unwrap();
+
+    mvprintw(
+        row,
+        col + label.len() as i32 + 3 + width,
+        &format!("] {:.1}%", percentage),
+    )
+    .unwrap();
 }
 
 #[derive(Parser)]
@@ -65,7 +70,7 @@ fn main() {
         let memory_percent = (system.used_memory() as f64 / system.total_memory() as f64) * 100.0;
 
         draw_progress_bar(memory_row, 0, 30, memory_percent, "Memory");
-        
+
         mvprintw(
             memory_row + 2,
             2,
