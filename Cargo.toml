@@ -4,12 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-[package]
-name = "sysmon"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-ncurses = "5.101.0"
+ncurses = "6"
 clap = { version = "4.0", features = ["derive"] }
-sysinfo = "0.30"
+sysinfo = "0.35"
