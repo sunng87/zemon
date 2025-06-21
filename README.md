@@ -71,6 +71,15 @@ Add to your `home.nix`:
 }
 ```
 
+## Usage
+
+You can start `zemon` from any shell. But it is designed for using in Zellij
+typically. Start it as a floating pane in Zellij:
+
+```bash
+zellij run -f -c -- zemon
+```
+
 ## Development
 
 ### Using the development shell
