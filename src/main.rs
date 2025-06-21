@@ -125,37 +125,28 @@ fn ui(f: &mut Frame, app: &App) {
         .direction(Direction::Vertical)
         .margin(1)
         .constraints([
-            Constraint::Length(3), // Header
             Constraint::Length(3), // CPU
             Constraint::Length(5), // Memory
             Constraint::Min(0),    // Remaining space
         ])
         .split(f.size());
 
-    // Header
-    let header = Paragraph::new(format!(
-        "System Monitor - Press 'q' to quit\nRefresh interval: {}s",
-        app.refresh_interval.as_secs()
-    ))
-    .block(Block::default().borders(Borders::ALL).title("ZeMon"));
-    f.render_widget(header, chunks[0]);
-
     // CPU Usage
     let cpu_gauge = Gauge::default()
-        .block(Block::default().borders(Borders::ALL).title("CPU Usage"))
+        .block(Block::default().borders(Borders::ALL).title("🖥️  CPU"))
         .gauge_style(Style::default().fg(Color::Cyan))
         .percent(app.cpu_usage as u16)
         .label(format!("{:.1}%", app.cpu_usage));
-    f.render_widget(cpu_gauge, chunks[1]);
+    f.render_widget(cpu_gauge, chunks[0]);
 
     // Memory Usage
     let memory_info = format!(
         "Available: {:.2} GB\nUsed: {:.2} GB",
         app.total_memory_gb, app.used_memory_gb
     );
-    let memory_block = Block::default().borders(Borders::ALL).title("Memory Usage");
-    let memory_area = memory_block.inner(chunks[2]);
-    f.render_widget(memory_block, chunks[2]);
+    let memory_block = Block::default().borders(Borders::ALL).title("🧠 Memory");
+    let memory_area = memory_block.inner(chunks[1]);
+    f.render_widget(memory_block, chunks[1]);
 
     let memory_chunks = Layout::default()
         .direction(Direction::Vertical)
