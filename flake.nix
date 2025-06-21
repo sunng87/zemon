@@ -40,9 +40,9 @@
           '';
         };
 
-        packages.default = pkgs.rustPlatform.buildRustPackage {
+        packages.default = pkgs.rustPlatform.buildRustPackage rec {
           pname = "zemon";
-          version = "0.1.0";
+          version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package.version;
 
           src = ./.;
 
