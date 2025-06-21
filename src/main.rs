@@ -6,10 +6,9 @@ use crossterm::{
 };
 use ratatui::{
     backend::{Backend, CrosstermBackend},
-    layout::{Constraint, Direction, Layout, Margin},
+    layout::{Constraint, Direction, Layout},
     style::{Color, Style},
-    symbols,
-    widgets::{Block, Borders, Gauge, Paragraph},
+    widgets::{Block, Borders, Gauge},
     Frame, Terminal,
 };
 use std::{
@@ -126,39 +125,32 @@ fn ui(f: &mut Frame, app: &App) {
         .margin(1)
         .constraints([
             Constraint::Length(3), // CPU
-            Constraint::Length(5), // Memory
+            Constraint::Length(3), // Memory
             Constraint::Min(0),    // Remaining space
         ])
         .split(f.size());
 
     // CPU Usage
     let cpu_gauge = Gauge::default()
-        .block(Block::default().borders(Borders::ALL).title("🖥️  CPU"))
+        .block(Block::default().borders(Borders::ALL).title("  "))
         .gauge_style(Style::default().fg(Color::Cyan))
         .percent(app.cpu_usage as u16)
         .label(format!("{:.1}%", app.cpu_usage));
     f.render_widget(cpu_gauge, chunks[0]);
 
     // Memory Usage
-    let memory_info = format!(
-        "Available: {:.2} GB\nUsed: {:.2} GB",
-        app.total_memory_gb, app.used_memory_gb
-    );
-    let memory_block = Block::default().borders(Borders::ALL).title("🧠 Memory");
+    let memory_block = Block::default().borders(Borders::ALL).title("  ");
     let memory_area = memory_block.inner(chunks[1]);
     f.render_widget(memory_block, chunks[1]);
 
     let memory_chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(1), Constraint::Length(2)])
+        .constraints([Constraint::Length(1)])
         .split(memory_area);
 
     let memory_gauge = Gauge::default()
         .gauge_style(Style::default().fg(Color::Green))
         .percent(app.memory_percent as u16)
-        .label(format!("{:.1}%", app.memory_percent));
+        .label(format!("{:.1} GB", app.used_memory_gb));
     f.render_widget(memory_gauge, memory_chunks[0]);
-
-    let memory_details = Paragraph::new(memory_info);
-    f.render_widget(memory_details, memory_chunks[1]);
 }
