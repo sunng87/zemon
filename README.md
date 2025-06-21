@@ -15,7 +15,7 @@ nix profile install github:sunng87/zemon
 
 #### Run without installing
 ```bash
-nix run github:sung87/zemon
+nix run github:sunng87/zemon
 ```
 
 ### NixOS Configuration
