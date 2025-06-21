@@ -42,6 +42,9 @@ struct App {
     prev_network_transmitted: u64,
     refresh_interval: Duration,
     last_update: Instant,
+    load_avg_1: f64,
+    load_avg_5: f64,
+    load_avg_15: f64,
 }
 
 fn get_gauge_color(percentage: f64) -> Color {
@@ -71,6 +74,8 @@ impl App {
                 (rx + data.total_received(), tx + data.total_transmitted())
             });
 
+        let load_avg = System::load_average();
+
         App {
             system,
             networks,
@@ -85,6 +90,9 @@ impl App {
             prev_network_transmitted: total_transmitted,
             refresh_interval,
             last_update: Instant::now(),
+            load_avg_1: load_avg.one,
+            load_avg_5: load_avg.five,
+            load_avg_15: load_avg.fifteen,
         }
     }
 
@@ -117,6 +125,13 @@ impl App {
 
             self.prev_network_received = total_received;
             self.prev_network_transmitted = total_transmitted;
+
+            // Update load averages
+            let load_avg = System::load_average();
+            self.load_avg_1 = load_avg.one;
+            self.load_avg_5 = load_avg.five;
+            self.load_avg_15 = load_avg.fifteen;
+
             self.last_update = Instant::now();
         }
     }
@@ -205,8 +220,12 @@ fn ui(f: &mut Frame, app: &App) {
         .split(vertical_chunks[1]);
 
     // CPU Usage
+    let cpu_title = format!(
+        " CPU ({:.2} {:.2} {:.2}) ",
+        app.load_avg_1, app.load_avg_5, app.load_avg_15
+    );
     let cpu_gauge = Gauge::default()
-        .block(Block::default().borders(Borders::ALL).title(" CPU "))
+        .block(Block::default().borders(Borders::ALL).title(cpu_title))
         .gauge_style(Style::default().fg(get_gauge_color(app.cpu_usage)))
         .percent(app.cpu_usage as u16)
         .label(format!("{:.1}%", app.cpu_usage));
