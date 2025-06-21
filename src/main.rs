@@ -34,24 +34,34 @@ fn main() {
         clear();
 
         // Display header
-        mvprintw(0, 0, "System Monitor - Press 'q' to quit");
-        mvprintw(1, 0, &format!("Refresh interval: {}s", args.interval));
-        mvprintw(2, 0, "----------------------------------------");
+        mvprintw(0, 0, "System Monitor - Press 'q' to quit").unwrap();
+        mvprintw(1, 0, &format!("Refresh interval: {}s", args.interval)).unwrap();
+        mvprintw(2, 0, "----------------------------------------").unwrap();
 
         // Display CPU information
-        mvprintw(4, 0, "CPU Usage:");
-        let cpu_usage = system.global_cpu_info().cpu_usage();
-        mvprintw(5, 2, &format!("Overall: {:.1}%", cpu_usage));
+        mvprintw(4, 0, "CPU Usage:").unwrap();
+        let cpu_usage = system.global_cpu_usage();
+        mvprintw(5, 2, &format!("Overall: {:.1}%", cpu_usage)).unwrap();
 
         // Display memory information
         let memory_row = 7;
-        mvprintw(memory_row, 0, "Memory Usage:");
+        mvprintw(memory_row, 0, "Memory Usage:").unwrap();
         let total_memory_gb = system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
         let used_memory_gb = system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
         let memory_percent = (system.used_memory() as f64 / system.total_memory() as f64) * 100.0;
-        
-        mvprintw(memory_row + 1, 2, &format!("Available: {:.2} GB", total_memory_gb));
-        mvprintw(memory_row + 2, 2, &format!("Used: {:.2} GB ({:.1}%)", used_memory_gb, memory_percent));
+
+        mvprintw(
+            memory_row + 1,
+            2,
+            &format!("Available: {:.2} GB", total_memory_gb),
+        )
+        .unwrap();
+        mvprintw(
+            memory_row + 2,
+            2,
+            &format!("Used: {:.2} GB ({:.1}%)", used_memory_gb, memory_percent),
+        )
+        .unwrap();
 
         // Refresh screen
         refresh();
