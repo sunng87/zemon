@@ -120,15 +120,35 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
 }
 
 fn ui(f: &mut Frame, app: &App) {
-    let chunks = Layout::default()
+    // Create horizontal centering with padding
+    let horizontal_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Percentage(20), // Left padding
+            Constraint::Percentage(60), // Center content
+            Constraint::Percentage(20), // Right padding
+        ])
+        .split(f.size());
+
+    // Create vertical centering with padding
+    let vertical_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Percentage(30), // Top padding
+            Constraint::Length(8),      // Content height (2 widgets + borders)
+            Constraint::Percentage(30), // Bottom padding
+        ])
+        .split(horizontal_chunks[1]);
+
+    // Create the widget layout within the centered area
+    let widget_chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
         .constraints([
             Constraint::Length(3), // CPU
             Constraint::Length(3), // Memory
-            Constraint::Min(0),    // Remaining space
         ])
-        .split(f.size());
+        .split(vertical_chunks[1]);
 
     // CPU Usage
     let cpu_gauge = Gauge::default()
@@ -136,21 +156,13 @@ fn ui(f: &mut Frame, app: &App) {
         .gauge_style(Style::default().fg(Color::Cyan))
         .percent(app.cpu_usage as u16)
         .label(format!("{:.1}%", app.cpu_usage));
-    f.render_widget(cpu_gauge, chunks[0]);
+    f.render_widget(cpu_gauge, widget_chunks[0]);
 
     // Memory Usage
-    let memory_block = Block::default().borders(Borders::ALL).title("  ");
-    let memory_area = memory_block.inner(chunks[1]);
-    f.render_widget(memory_block, chunks[1]);
-
-    let memory_chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([Constraint::Length(1)])
-        .split(memory_area);
-
     let memory_gauge = Gauge::default()
+        .block(Block::default().borders(Borders::ALL).title("  "))
         .gauge_style(Style::default().fg(Color::Green))
         .percent(app.memory_percent as u16)
         .label(format!("{:.1} GB", app.used_memory_gb));
-    f.render_widget(memory_gauge, memory_chunks[0]);
+    f.render_widget(memory_gauge, widget_chunks[1]);
 }
