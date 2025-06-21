@@ -42,7 +42,7 @@ impl App {
     fn new(refresh_interval: Duration) -> App {
         let mut system = System::new_all();
         system.refresh_all();
-        
+
         let cpu_usage = system.global_cpu_usage() as f64;
         let total_memory_gb = system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
         let used_memory_gb = system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
@@ -65,7 +65,8 @@ impl App {
             self.cpu_usage = self.system.global_cpu_usage() as f64;
             self.total_memory_gb = self.system.total_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
             self.used_memory_gb = self.system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
-            self.memory_percent = (self.system.used_memory() as f64 / self.system.total_memory() as f64) * 100.0;
+            self.memory_percent =
+                (self.system.used_memory() as f64 / self.system.total_memory() as f64) * 100.0;
             self.last_update = Instant::now();
         }
     }
