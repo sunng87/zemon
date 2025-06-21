@@ -2,7 +2,7 @@ use clap::Parser;
 use ncurses::*;
 use std::thread;
 use std::time::Duration;
-use sysinfo::{CpuExt, System, SystemExt};
+use sysinfo::System;
 
 #[derive(Parser)]
 #[command(name = "sysmon")]
