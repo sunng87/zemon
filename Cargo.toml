@@ -8,3 +8,10 @@ ratatui = "0.26"
 crossterm = "0.27"
 clap = { version = "4.0", features = ["derive"] }
 sysinfo = "0.35"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
