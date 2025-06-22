@@ -30,7 +30,8 @@
       in
       {
         devShells.default = pkgs.mkShell {
-          inherit buildInputs nativeBuildInputs;
+          buildInputs = buildInputs ++ [ rustToolchain ];
+          inherit nativeBuildInputs;
 
           shellHook = ''
             echo "Rust development environment loaded"
@@ -50,7 +51,6 @@
           };
 
           nativeBuildInputs = with pkgs; [
-            rustToolchain
             pkg-config
           ];
           inherit buildInputs;
