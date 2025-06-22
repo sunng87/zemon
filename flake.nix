@@ -24,7 +24,6 @@
         ];
 
         nativeBuildInputs = with pkgs; [
-          rustToolchain
           pkg-config
         ];
 
@@ -50,7 +49,11 @@
             lockFile = ./Cargo.lock;
           };
 
-          inherit nativeBuildInputs buildInputs;
+          nativeBuildInputs = with pkgs; [
+            rustToolchain
+            pkg-config
+          ];
+          inherit buildInputs;
 
           meta = with pkgs.lib; {
             description = "A system monitor TUI application";
