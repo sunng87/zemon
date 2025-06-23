@@ -200,9 +200,9 @@ fn ui(f: &mut Frame, app: &App) {
     let vertical_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Percentage(25), // Top padding
+            Constraint::Percentage(20), // Top padding
             Constraint::Length(15),     // Content height (4 widgets + borders)
-            Constraint::Percentage(25), // Bottom padding
+            Constraint::Percentage(20), // Bottom padding
         ])
         .split(horizontal_chunks[1]);
 
