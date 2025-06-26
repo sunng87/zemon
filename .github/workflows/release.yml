@@ -51,9 +51,10 @@ jobs:
         sed -i "s/^sha256sums=.*/sha256sums=('${{ steps.sha256.outputs.sha256 }}')/" PKGBUILD
 
     - name: Deploy to AUR
-      uses: KSXGitHub/github-actions-deploy-aur@v2.6.0
+      uses: KSXGitHub/github-actions-deploy-aur@v4.1.1
       with:
-        pkgname: ${{ env.AUR_PKGNAME }}
-        commit_username: ${{ env.AUR_USERNAME }}
-        commit_email: ${{ env.AUR_EMAIL }}
+        pkgname: zemon-bin
+        pkgbuild: ./PKGBUILD
+        commit_username: sunng
+        commit_email: n@sunng.info
         ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}

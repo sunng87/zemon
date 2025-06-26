@@ -71,6 +71,14 @@ Add to your `home.nix`:
 }
 ```
 
+### ArchLinux/AUR
+
+This package is available on AUR.
+
+```bash
+paru -S zemon-bin
+```
+
 ## Usage
 
 You can start `zemon` from any shell. But it is designed for using in Zellij

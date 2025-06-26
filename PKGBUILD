@@ -1,15 +1,18 @@
-# Maintainer: Your Name <your@email.com>
+# Maintainer: Ning Sun <n@sunng.info>
 pkgname=zemon-bin
 pkgver=0.2.1
 pkgrel=1
-pkgdesc="A terminal system monitor written in Rust"
+pkgdesc="A terminal system monitor for zellij written in Rust"
 arch=('x86_64')
-url="https://github.com/yourusername/zemon"
+url="https://github.com/sunng87/zemon"
+provides=('zemon')
 license=('MIT')
 depends=('glibc')
-source=("https://github.com/yourusername/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
+makedepends=('patchelf')
+source=("https://github.com/sunng87/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
 sha256sums=('SKIP') # You'll need to replace this with actual checksum after first release
 
 package() {
+  patchelf --set-interpreter /usr/lib64/ld-linux-x86-64.so.2 "$srcdir/zemon-linux-x86_64"
   install -Dm755 "$srcdir/zemon-linux-x86_64" "$pkgdir/usr/bin/zemon"
 }
