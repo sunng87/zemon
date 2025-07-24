@@ -2,6 +2,7 @@
 name = "zemon"
 version = "0.2.1"
 edition = "2024"
+description = "A system monitor TUI application for zellij environment"
 
 [dependencies]
 ratatui = "0.29"

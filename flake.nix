@@ -16,7 +16,7 @@
         };
 
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rustfmt" "clippy" ];
+          extensions = [ "rust-src" "rustfmt" "clippy" "rust-analyzer" ];
         };
 
         buildInputs = with pkgs; [
@@ -26,6 +26,8 @@
         nativeBuildInputs = with pkgs; [
           pkg-config
         ];
+
+        cargoToml = pkgs.lib.importTOML ./Cargo.toml;
 
       in
       {
@@ -41,8 +43,8 @@
         };
 
         packages.default = pkgs.rustPlatform.buildRustPackage rec {
-          pname = "zemon";
-          version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package.version;
+          pname = cargoToml.package.name;
+          version = cargoToml.package.version;
 
           src = ./.;
 
@@ -56,7 +58,7 @@
           inherit buildInputs;
 
           meta = with pkgs.lib; {
-            description = "A system monitor TUI application";
+            description = cargoToml.package.description;
             license = licenses.mit;
             maintainers = [ ];
           };
