@@ -2,25 +2,30 @@
   description = "A Rust system monitor TUI application";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    rust-overlay = {
-      url = "github:oxalica/rust-overlay";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    fenix = {
+      url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils }:
+  outputs = { self, nixpkgs, fenix, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        overlays = [ (import rust-overlay) ];
+        overlays = [ fenix.overlays.default ];
         pkgs = import nixpkgs {
           inherit system overlays;
         };
 
-        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-          extensions = [ "rust-src" "rustfmt" "clippy" "rust-analyzer" ];
-        };
+        rustToolchain = pkgs.fenix.stable.withComponents [
+          "cargo"
+          "rustc"
+          "rust-src"
+          "rustfmt"
+          "clippy"
+          "rust-analyzer"
+        ];
 
         buildInputs = with pkgs; [
           # Add any system dependencies your app needs here
