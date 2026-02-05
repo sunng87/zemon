@@ -1,6 +1,6 @@
 # Maintainer: Ning Sun <n@sunng.info>
 pkgname=zemon-bin
-pkgver=0.2.1
+pkgver=0.3.0
 pkgrel=1
 pkgdesc="A terminal system monitor for zellij written in Rust"
 arch=('x86_64')
@@ -9,7 +9,7 @@ provides=('zemon')
 license=('MIT')
 depends=('glibc')
 makedepends=('patchelf')
-source=("https://github.com/sunng87/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
+source=("$pkgname-$pkgver.tar.gz::https://github.com/sunng87/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
 sha256sums=('SKIP') # You'll need to replace this with actual checksum after first release
 
 package() {
