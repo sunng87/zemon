@@ -237,7 +237,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<()> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), Box<dyn Error>>
+where
+    <B as Backend>::Error: 'static,
+{
     loop {
         app.update();
         terminal.draw(|f| ui(f, app))?;
