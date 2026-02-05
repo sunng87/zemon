@@ -10,7 +10,7 @@ use ratatui::{
     backend::{Backend, CrosstermBackend},
     layout::{Constraint, Direction, Layout},
     style::{Color, Style, Stylize},
-    widgets::{Block, Borders, Gauge, Paragraph},
+    widgets::{Block, Borders, Gauge, Paragraph, RenderDirection, Sparkline},
 };
 use std::{
     error::Error,
@@ -45,6 +45,8 @@ struct App {
     load_avg_1: f64,
     load_avg_5: f64,
     load_avg_15: f64,
+    cpu_history: Vec<u64>,
+    terminal_width: u16,
 }
 
 fn get_gauge_color(percentage: f64) -> Color {
@@ -93,10 +95,27 @@ impl App {
             load_avg_1: load_avg.one,
             load_avg_5: load_avg.five,
             load_avg_15: load_avg.fifteen,
+            cpu_history: vec![0; 200],
+            terminal_width: 0,
         }
     }
 
     fn update(&mut self) {
+        if self.last_update.elapsed() >= self.refresh_interval {
+            self.update_system_stats();
+            self.last_update = Instant::now();
+        }
+    }
+
+    fn set_terminal_width(&mut self, width: u16) {
+        self.terminal_width = width;
+        let max_points = self.terminal_width as usize;
+        while self.cpu_history.len() > max_points {
+            self.cpu_history.pop();
+        }
+    }
+
+    fn update_system_stats(&mut self) {
         if self.last_update.elapsed() >= self.refresh_interval {
             self.system.refresh_all();
             self.networks.refresh(true);
@@ -131,6 +150,13 @@ impl App {
             self.load_avg_1 = load_avg.one;
             self.load_avg_5 = load_avg.five;
             self.load_avg_15 = load_avg.fifteen;
+
+            // Update CPU history
+            self.cpu_history.insert(0, self.cpu_usage as u64);
+            let max_points = self.terminal_width as usize;
+            while self.cpu_history.len() > max_points {
+                self.cpu_history.pop();
+            }
 
             self.last_update = Instant::now();
         }
@@ -185,7 +211,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
     }
 }
 
-fn ui(f: &mut Frame, app: &App) {
+fn ui(f: &mut Frame, app: &mut App) {
+    app.set_terminal_width(f.area().width);
+
+    let main_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Min(0),
+            Constraint::Length(3),
+        ])
+        .split(f.area());
+
     // Create horizontal centering with padding
     let horizontal_chunks = Layout::default()
         .direction(Direction::Horizontal)
@@ -194,7 +230,7 @@ fn ui(f: &mut Frame, app: &App) {
             Constraint::Percentage(60), // Center content
             Constraint::Percentage(20), // Right padding
         ])
-        .split(f.area());
+        .split(main_chunks[0]);
 
     // Create vertical centering with padding
     let vertical_chunks = Layout::default()
@@ -264,4 +300,12 @@ fn ui(f: &mut Frame, app: &App) {
         .centered()
         .style(Style::default().bold());
     f.render_widget(time_widget, widget_chunks[4]);
+
+    // CPU History Sparkline at the bottom
+    let sparkline = Sparkline::default()
+        .data(&app.cpu_history)
+        .max(100)
+        .style(Style::default().fg(Color::DarkGray))
+        .direction(RenderDirection::RightToLeft);
+    f.render_widget(sparkline, main_chunks[1]);
 }
