@@ -272,7 +272,7 @@ fn ui(f: &mut Frame, app: &mut App) {
         .split(main_chunks[0]);
 
     let tab_text = Line::from(vec![Span::styled(
-        app.current_tab.name(),
+        format!("{} TAB", app.current_tab.name()),
         Style::default().fg(Color::DarkGray),
     )]);
 
@@ -372,7 +372,7 @@ fn render_perf_tab(f: &mut Frame, app: &mut App, area: ratatui::prelude::Rect) {
     );
     let info_widget = Paragraph::new(info_text)
         .alignment(Alignment::Center)
-        .style(Style::default().fg(Color::DarkGray));
+        .style(Style::default().fg(Color::Gray));
     f.render_widget(info_widget, widget_chunks[4]);
 }
 
