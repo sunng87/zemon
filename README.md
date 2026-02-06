@@ -2,7 +2,11 @@
 
 A small TUI widget designed for display system information in zellij.
 
+Perf mode
 ![screenshot](screenshot.png)
+
+Clock mode
+![screenshot](screenshot2.png)
 
 ## Installation
 
