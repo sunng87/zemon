@@ -36,6 +36,25 @@ enum Tab {
     Clock,
 }
 
+const CLOCK_COLORS: [Color; 16] = [
+    Color::Black,
+    Color::Red,
+    Color::Green,
+    Color::Yellow,
+    Color::Blue,
+    Color::Magenta,
+    Color::Cyan,
+    Color::White,
+    Color::DarkGray,
+    Color::LightRed,
+    Color::LightGreen,
+    Color::LightYellow,
+    Color::LightBlue,
+    Color::LightMagenta,
+    Color::LightCyan,
+    Color::Gray,
+];
+
 impl Tab {
     fn name(&self) -> &str {
         match self {
@@ -75,6 +94,7 @@ struct App {
     os_name: String,
     kernel_version: String,
     uptime_days: u64,
+    clock_color_index: usize,
 }
 
 fn get_gauge_color(percentage: f64) -> Color {
@@ -133,6 +153,7 @@ impl App {
             os_name,
             kernel_version,
             uptime_days,
+            clock_color_index: 15,
         }
     }
 
@@ -150,6 +171,18 @@ impl App {
 
     fn switch_tab(&mut self) {
         self.current_tab = self.current_tab.next();
+    }
+
+    fn next_clock_color(&mut self) {
+        self.clock_color_index = (self.clock_color_index + 1) % CLOCK_COLORS.len();
+    }
+
+    fn prev_clock_color(&mut self) {
+        self.clock_color_index = self.clock_color_index.saturating_sub(1) % CLOCK_COLORS.len();
+    }
+
+    fn clock_color(&self) -> Color {
+        CLOCK_COLORS[self.clock_color_index]
     }
 
     fn update_system_stats(&mut self) {
@@ -251,6 +284,8 @@ where
             match key.code {
                 KeyCode::Char('q') | KeyCode::Char('Q') | KeyCode::Esc => return Ok(()),
                 KeyCode::Tab => app.switch_tab(),
+                KeyCode::Left if app.current_tab == Tab::Clock => app.prev_clock_color(),
+                KeyCode::Right if app.current_tab == Tab::Clock => app.next_clock_color(),
                 _ => {}
             }
         }
@@ -286,7 +321,7 @@ fn ui(f: &mut Frame, app: &mut App) {
 
     match app.current_tab {
         Tab::Perf => render_perf_tab(f, app, main_chunks[1]),
-        Tab::Clock => render_empty_tab(f, main_chunks[1]),
+        Tab::Clock => render_clock_tab(f, app, main_chunks[1]),
     }
 
     let sparkline_data: Vec<u64> = app
@@ -379,6 +414,6 @@ fn render_perf_tab(f: &mut Frame, app: &mut App, area: ratatui::prelude::Rect) {
     f.render_widget(info_widget, widget_chunks[4]);
 }
 
-fn render_empty_tab(f: &mut Frame, area: ratatui::prelude::Rect) {
-    clock::render_clock(f, area);
+fn render_clock_tab(f: &mut Frame, app: &mut App, area: ratatui::prelude::Rect) {
+    clock::render_clock(f, area, app.clock_color());
 }

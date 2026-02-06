@@ -131,10 +131,9 @@ impl Character {
     }
 }
 
-pub fn render_clock(f: &mut Frame, area: ratatui::prelude::Rect) {
+pub fn render_clock(f: &mut Frame, area: ratatui::prelude::Rect, color: Color) {
     let time = chrono::Local::now().format("%H:%M:%S").to_string();
     let date = chrono::Local::now().format("%A, %B %d, %Y").to_string();
-    let color = Color::White;
     let mut clock_lines = Vec::new();
 
     for row in 0..5 {
@@ -166,6 +165,8 @@ pub fn render_clock(f: &mut Frame, area: ratatui::prelude::Rect) {
     let clock_widget = Paragraph::new(clock_lines).alignment(ratatui::layout::Alignment::Center);
     f.render_widget(clock_widget, vertical_chunks[1]);
 
-    let date_widget = Paragraph::new(date).alignment(ratatui::layout::Alignment::Center);
+    let date_widget = Paragraph::new(date)
+        .alignment(ratatui::layout::Alignment::Center)
+        .style(Style::default().fg(color));
     f.render_widget(date_widget, vertical_chunks[3]);
 }
