@@ -380,15 +380,17 @@ fn render_perf_tab(f: &mut Frame, app: &mut App, area: ratatui::prelude::Rect) {
         .label(format!("{:.1}%", app.cpu_usage));
     f.render_widget(cpu_gauge, widget_chunks[0]);
 
+    let memory_title = format!(" Memory ({:.1}%) ", app.memory_percent);
     let memory_gauge = Gauge::default()
-        .block(Block::default().borders(Borders::ALL).title(" Memory "))
+        .block(Block::default().borders(Borders::ALL).title(memory_title))
         .gauge_style(Style::default().fg(get_gauge_color(app.memory_percent)))
         .percent(app.memory_percent as u16)
         .label(format!("{:.1} GB", app.used_memory_gb));
     f.render_widget(memory_gauge, widget_chunks[1]);
 
+    let swap_title = format!(" Swap ({:.1}%) ", app.swap_percent);
     let swap_gauge = Gauge::default()
-        .block(Block::default().borders(Borders::ALL).title(" Swap "))
+        .block(Block::default().borders(Borders::ALL).title(swap_title))
         .gauge_style(Style::default().fg(get_gauge_color(app.swap_percent)))
         .percent(app.swap_percent as u16)
         .label(format!("{:.1} GB", app.used_swap_gb));
