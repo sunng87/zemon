@@ -9,10 +9,10 @@ provides=('zemon')
 license=('MIT')
 depends=('glibc')
 makedepends=('patchelf')
-source=("$pkgname-$pkgver.tar.gz::https://github.com/sunng87/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
+source=("$pkgname-$pkgver::https://github.com/sunng87/zemon/releases/download/v${pkgver}/zemon-linux-x86_64")
 sha256sums=('SKIP') # You'll need to replace this with actual checksum after first release
 
 package() {
-  patchelf --set-interpreter /usr/lib64/ld-linux-x86-64.so.2 "$srcdir/zemon-linux-x86_64"
-  install -Dm755 "$srcdir/zemon-linux-x86_64" "$pkgdir/usr/bin/zemon"
+  patchelf --set-interpreter /usr/lib64/ld-linux-x86-64.so.2 "$srcdir/$pkgname-$pkgver"
+  install -Dm755 "$srcdir/$pkgname-$pkgver" "$pkgdir/usr/bin/zemon"
 }
