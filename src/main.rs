@@ -1,4 +1,5 @@
 mod clock;
+mod disk;
 
 use clap::Parser;
 use crossterm::{
@@ -19,7 +20,7 @@ use std::{
     io,
     time::{Duration, Instant},
 };
-use sysinfo::{Networks, System};
+use sysinfo::{Disks, Networks, System};
 
 #[derive(Parser)]
 #[command(name = "zemon")]
@@ -34,6 +35,7 @@ struct Args {
 enum Tab {
     Perf,
     Clock,
+    Disk,
 }
 
 const CLOCK_COLORS: [Color; 16] = [
@@ -60,13 +62,15 @@ impl Tab {
         match self {
             Tab::Perf => "perf(1)",
             Tab::Clock => "clock(2)",
+            Tab::Disk => "disk(3)",
         }
     }
 
     fn next(&self) -> Self {
         match self {
             Tab::Perf => Tab::Clock,
-            Tab::Clock => Tab::Perf,
+            Tab::Clock => Tab::Disk,
+            Tab::Disk => Tab::Perf,
         }
     }
 }
@@ -74,6 +78,8 @@ impl Tab {
 struct App {
     system: System,
     networks: Networks,
+    disks: Disks,
+    disk_infos: Vec<disk::DiskInfo>,
     cpu_usage: f64,
     memory_percent: f64,
     swap_percent: f64,
@@ -97,7 +103,7 @@ struct App {
     clock_color_index: usize,
 }
 
-fn get_gauge_color(percentage: f64) -> Color {
+pub(crate) fn get_gauge_color(percentage: f64) -> Color {
     match percentage {
         p if p < 25.0 => Color::Blue,
         p if p < 50.0 => Color::Cyan,
@@ -111,6 +117,8 @@ impl App {
         let mut system = System::new_all();
         system.refresh_all();
         let networks = Networks::new_with_refreshed_list();
+        let disks = Disks::new_with_refreshed_list();
+        let disk_infos = disk::collect_disks(&disks);
 
         let cpu_usage = system.global_cpu_usage() as f64;
         let used_memory_gb = system.used_memory() as f64 / 1024.0 / 1024.0 / 1024.0;
@@ -133,6 +141,8 @@ impl App {
         App {
             system,
             networks,
+            disks,
+            disk_infos,
             cpu_usage,
             memory_percent,
             swap_percent,
@@ -190,7 +200,6 @@ impl App {
             if self.current_tab == Tab::Perf {
                 self.system.refresh_all();
                 self.networks.refresh(true);
-
                 let elapsed_secs = self.last_update.elapsed().as_secs_f64();
 
                 self.cpu_usage = self.system.global_cpu_usage() as f64;
@@ -221,6 +230,13 @@ impl App {
                 self.load_avg_5 = load_avg.five;
                 self.load_avg_15 = load_avg.fifteen;
 
+                self.cpu_history.insert(0, self.cpu_usage as u64);
+            } else if self.current_tab == Tab::Disk {
+                self.disks.refresh(true);
+                self.disk_infos = disk::collect_disks(&self.disks);
+
+                self.system.refresh_cpu_all();
+                self.cpu_usage = self.system.global_cpu_usage() as f64;
                 self.cpu_history.insert(0, self.cpu_usage as u64);
             } else {
                 self.system.refresh_cpu_all();
@@ -322,6 +338,7 @@ fn ui(f: &mut Frame, app: &mut App) {
     match app.current_tab {
         Tab::Perf => render_perf_tab(f, app, main_chunks[1]),
         Tab::Clock => render_clock_tab(f, app, main_chunks[1]),
+        Tab::Disk => disk::render_disk_tab(f, main_chunks[1], &app.disk_infos),
     }
 
     let sparkline_data: Vec<u64> = app
